@@ -25,7 +25,7 @@ const Messages = ({ selecteduser }) => {
 
     try {
       const res = await axios.post(
-        `http://localhost:8000/api/v1/message/delete`,
+        `https://dipanshu-instagram.onrender.com/api/v1/message/delete`,
         { receiverId: msg.receiverId, senderId: msg.senderId, _id: msg._id },
         {
           headers: { "Content-Type": "application/json" },

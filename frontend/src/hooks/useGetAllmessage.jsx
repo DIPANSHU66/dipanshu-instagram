@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import axios from "axios";
 import { setMessages } from "@/redux/chatslice";
 
-const API_URL = "http://localhost:8000/api/v1/message";
+const API_URL = "https://dipanshu-instagram.onrender.com/api/v1/message";
 
 const useGetAllmessage = () => {
   const dispatch = useDispatch();

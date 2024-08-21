@@ -40,7 +40,7 @@ const Post = ({ post }) => {
     try {
       const action = liked ? "dislike" : "like";
       const res = await axios.get(
-        `http://localhost:8000/api/v1/post/${post._id}/${action}`,
+        `https://dipanshu-instagram.onrender.com/api/v1/post/${post._id}/${action}`,
         { withCredentials: true }
       );
       console.log(res);
@@ -71,7 +71,7 @@ const Post = ({ post }) => {
     e.preventDefault();
     try {
       const res = await axios.delete(
-        `http://localhost:8000/api/v1/post/delete/${post._id}`,
+        `https://dipanshu-instagram.onrender.com/api/v1/post/delete/${post._id}`,
         { withCredentials: true }
       );
 
@@ -90,7 +90,7 @@ const Post = ({ post }) => {
   const commenthandler = async () => {
     try {
       const res = await axios.post(
-        `http://localhost:8000/api/v1/post/${post._id}/comment`,
+        `https://dipanshu-instagram.onrender.com/api/v1/post/${post._id}/comment`,
         { text },
         {
           headers: { "Content-Type": "application/json" },
@@ -116,7 +116,7 @@ const Post = ({ post }) => {
   const bookmarkhandler = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8000/api/v1/post/${post?._id}/bookmark`,
+        `https://dipanshu-instagram.onrender.com/api/v1/post/${post?._id}/bookmark`,
         { withCredentials: true }
       );
       if (res.data.success) {
@@ -130,7 +130,7 @@ const Post = ({ post }) => {
   const followhandler = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8000/api/v1/user/followorunfollow/${post?.author?._id}`,
+        `https://dipanshu-instagram.onrender.com/api/v1/user/followorunfollow/${post?.author?._id}`,
         {
           withCredentials: true,
         }

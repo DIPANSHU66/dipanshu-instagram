@@ -3,9 +3,10 @@ const express = require("express");
 const http = require("http");
 const app = express();
 const server = http.createServer(app);
+require("dotenv").config({});
 const io = new Server(server, {
   cors: {
-    origin: "http://localhost:5173",
+    origin: process.env.URL,
     methods: ["GET", "POST", "PUT"],
   },
 });

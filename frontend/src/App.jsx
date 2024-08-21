@@ -74,7 +74,7 @@ function App() {
   const { user } = useSelector((store) => store.auth);
   useEffect(() => {
     if (user) {
-      const socketio = io("http://localhost:8000", {
+      const socketio = io("https://dipanshu-instagram.onrender.com", {
         query: {
           userId: user?._id,
         },

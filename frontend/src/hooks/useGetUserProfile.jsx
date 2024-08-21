@@ -9,7 +9,7 @@ const useGetUserProfile = (userId) => {
     const fetchuserProfile = async () => {
       try {
         const res = await axios.get(
-          `http://localhost:8000/api/v1/user/${userId}/profile`,
+          `https://dipanshu-instagram.onrender.com/api/v1/user/${userId}/profile`,
           {
             withCredentials: true,
           }
