@@ -1,4 +1,4 @@
-[![Masthead Image](https://previews.123rf.com/images/karpenkoilia/karpenkoilia1806/karpenkoilia180600011/102988806-vector-line-web-concept-for-programming-linear-web-banner-for-coding-.jpg)
+![Masthead Image](https://previews.123rf.com/images/karpenkoilia/karpenkoilia1806/karpenkoilia180600011/102988806-vector-line-web-concept-for-programming-linear-web-banner-for-coding-.jpg)
 <h1 align="center">Hi 👋, I'm Dipanshu Bansal</h1>
 <h3 align="center">A passionate frontend developer from India</h3>
 <img align="right" alt="coding" width="400" src="![image](https://github.com/user-attachments/assets/9cd08ce9-aa5c-4d4a-b0ac-6b1c8523d174)
@@ -7,7 +7,7 @@
 
 <p align="left"> <a href="https://twitter.com/" target="blank"><img src="https://img.shields.io/twitter/follow/?logo=twitter&style=for-the-badge" alt="" /></a> </p>
 -🔭 my Project Link   https://dipanshu-instagram.onrender.com/login
-- 🌱 I’m currently learning **react+vite**
+- 🌱 used learning react+vite
 
 - 👨‍💻 All of my projects are available at [https://port-folio-neon.vercel.app/](https://port-folio-neon.vercel.app/)
 
@@ -30,3 +30,4 @@
 
 <p><img align="left" src="https://github-readme-stats.vercel.app/api/top-langs?username=dipanshu66&show_icons=true&locale=en&layout=compact" alt="dipanshu66" /></p>
 
+<p>&nbsp;<img align="center" src="https://github-readme-stats.vercel.app/api?username=dipanshu66&show_icons=true&locale=en" alt="dipanshu66" /></p>
