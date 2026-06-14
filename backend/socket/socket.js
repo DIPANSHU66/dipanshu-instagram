@@ -6,7 +6,7 @@ const server = http.createServer(app);
 require("dotenv").config({});
 const io = new Server(server, {
   cors: {
-    origin: process.env.URL,
+    origin: process.env.URL ? process.env.URL.split(",") : "http://localhost:5173",
     methods: ["GET", "POST", "PUT"],
   },
 });

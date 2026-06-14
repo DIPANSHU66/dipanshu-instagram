@@ -12,7 +12,7 @@ app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
 const corsOptions = {
-  origin: process.env.URL, // http://localhost:5173
+  origin: process.env.URL ? process.env.URL.split(",") : "http://localhost:5173",
   credentials: true,
 };
 
