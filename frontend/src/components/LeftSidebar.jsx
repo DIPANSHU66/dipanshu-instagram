@@ -28,7 +28,7 @@ const LeftSidebar = () => {
   );
   const logouthandler = async () => {
     try {
-      const res = await axios.get("https://dipanshu-instagram.onrender.com/api/v1/user/logout", {
+      const res = await axios.get(`${import.meta.env.VITE_API_URL}/user/logout`, {
         withCredentials: true,
       });
       if (res.data.success) {
@@ -91,9 +91,9 @@ const LeftSidebar = () => {
     },
   ];
   return (
-    <div className="flex flex-col  md:w-1/64 lg:w-1/64 min-h-screen border-r border-gray-300">
+    <div className="flex flex-col w-64 min-h-screen border-r border-zinc-200 bg-white p-5 sticky top-0">
       <div className="flex flex-col">
-        <h1 className="text-xl p-3 font-bold">LOGO</h1>
+        <h1 className="text-2xl px-3 py-6 font-bold tracking-tight bg-gradient-to-r from-pink-500 via-red-500 to-yellow-500 bg-clip-text text-transparent">Social App</h1>
         <div className="flex flex-col">
           {sidebaritems.map((item, index) => {
             return (

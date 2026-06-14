@@ -79,7 +79,7 @@ const getMessage = async (req, res) => {
 
 const deleteMessage = async (req, res) => {
   try {
-    const { receiverId, senderId, _id: messageId } = req.body; // Assuming these are sent in the request body
+    const { receiverId, senderId, _id: messageId } = req.body; 
     console.log(req.body);
     if (!receiverId || !senderId || !messageId) {
       return res

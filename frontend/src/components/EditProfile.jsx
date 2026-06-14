@@ -49,7 +49,7 @@ const EditProfile = () => {
     try {
       setloading(true);
       const res = await axios.post(
-        "https://dipanshu-instagram.onrender.com/api/v1/user/profile/edit",
+        `${import.meta.env.VITE_API_URL}/user/profile/edit`,
          formData ,
         {
           headers: { "Content-Type": "multipart/form-data" },

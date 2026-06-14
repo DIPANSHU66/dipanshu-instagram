@@ -9,7 +9,7 @@ const useGetUserProfile = (userId) => {
     const fetchuserProfile = async () => {
       try {
         const res = await axios.get(
-          `https://dipanshu-instagram.onrender.com/api/v1/user/${userId}/profile`,
+          `${import.meta.env.VITE_API_URL}/user/${userId}/profile`,
           {
             withCredentials: true,
           }

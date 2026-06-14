@@ -1,19 +1,23 @@
 import { useDispatch, useSelector } from "react-redux";
 import { useEffect } from "react";
-import { setMessages } from "@/redux/chatslice";
+import { addMessage } from "@/redux/chatslice";
+
 const useGetRtm = () => {
   const dispatch = useDispatch();
   const { socket } = useSelector((store) => store.socketio);
-  const { messages } = useSelector((store) => store.chat);
 
   useEffect(() => {
-    socket?.on("newMessage", (newMessage) => {
-      dispatch(setMessages([...messages, newMessage]));
-    });
-    return () => {
-      socket?.off('newMessage');
+    if (!socket) return;
+
+    const handleNewMessage = (newMessage) => {
+      dispatch(addMessage(newMessage));
     };
-  }, [messages, setMessages]);
+
+    socket.on("newMessage", handleNewMessage);
+    return () => {
+      socket.off("newMessage", handleNewMessage);
+    };
+  }, [socket, dispatch]);
 };
 
 export default useGetRtm;

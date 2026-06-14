@@ -9,19 +9,16 @@ import Comment from "./Comment";
 import axios from "axios";
 import { toast } from "sonner";
 import { setPosts } from "@/redux/postSlice";
+import { setAuthUser } from "@/redux/authSlice";
 const CommentDialog = ({ open, setopen }) => {
   const dispatch = useDispatch();
   const [text, setText] = useState("");
   const { selectedPost, posts } = useSelector((store) => store.post);
-
   const { user } = useSelector((store) => store.auth);
 
-  const [comment, setcomment] = useState([]);
-  useEffect(() => {
-    if (selectedPost) {
-      setcomment(selectedPost.comments);
-    }
-  }, [selectedPost]);
+  // Derive target post and its comments from the main posts array in Redux
+  const currentPost = posts.find((p) => p._id === selectedPost?._id);
+  const comment = currentPost ? currentPost.comments : (selectedPost?.comments || []);
 
   const changeEventhandler = (e) => {
     const inputText = e.target.value;
@@ -35,7 +32,7 @@ const CommentDialog = ({ open, setopen }) => {
     e.preventDefault();
     try {
       const res = await axios.post(
-        `https://dipanshu-instagram.onrender.com/api/v1/post/${selectedPost._id}/comment`,
+        `${import.meta.env.VITE_API_URL}/post/${selectedPost._id}/comment`,
         { text },
         {
           headers: { "Content-Type": "application/json" },
@@ -46,7 +43,6 @@ const CommentDialog = ({ open, setopen }) => {
       if (res.data.success) {
         const updatedcommentdata = [...comment, res.data.comment];
 
-        setcomment(updatedcommentdata);
         const updatepostdata = posts.map((p) =>
           p._id == selectedPost._id ? { ...p, comments: updatedcommentdata } : p
         );
@@ -64,20 +60,42 @@ const CommentDialog = ({ open, setopen }) => {
   const followhandler = async () => {
     try {
       const res = await axios.get(
-        `http://localhost:8000/api/v1/user/followorunfollow/${selectedPost?.author?._id}`,
+        `${import.meta.env.VITE_API_URL}/user/followorunfollow/${selectedPost?.author?._id}`,
         {
           withCredentials: true,
         }
       );
       if (res.data.success) {
         toast.success(res.data.message);
+        const isFollowing = selectedPost?.author?.followers?.includes(user?._id);
+        const updatedPosts = posts.map((p) => {
+          if (p.author?._id === selectedPost.author?._id) {
+            const followers = p.author.followers || [];
+            return {
+              ...p,
+              author: {
+                ...p.author,
+                followers: isFollowing
+                  ? followers.filter((id) => id !== user?._id)
+                  : [...followers, user?._id]
+              }
+            };
+          }
+          return p;
+        });
+        dispatch(setPosts(updatedPosts));
+
+        const updatedUser = {
+          ...user,
+          following: isFollowing
+            ? (user.following || []).filter((id) => id !== selectedPost?.author?._id)
+            : [...(user.following || []), selectedPost?.author?._id]
+        };
+        dispatch(setAuthUser(updatedUser));
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
-    setTimeout(() => {
-      window.location.reload();
-    }, 1500);
   };
   return (
     <Dialog open={open}>

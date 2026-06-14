@@ -33,7 +33,7 @@ const CreatePost = ({ open, setopen }) => {
     try {
       seloading(true);
       const res = await axios.post(
-        "https://dipanshu-instagram.onrender.com/api/v1/post/addpost",
+        `${import.meta.env.VITE_API_URL}/post/addpost`,
         formdata,
         {
           headers: {

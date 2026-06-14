@@ -9,23 +9,19 @@ import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
 import { setPosts, setselectedPost } from "@/redux/postSlice";
+import { setAuthUser } from "@/redux/authSlice";
 import { Badge } from "./ui/badge";
 
 const Post = ({ post }) => {
   const { user, SuggestedUsers } = useSelector((store) => store.auth);
   const { posts } = useSelector((store) => store.post);
-  const [liked, setliked] = useState(post.likes.includes(user?._id) || false);
   const dispatch = useDispatch();
   const [text, setText] = useState("");
   const [open, setopen] = useState(false);
-  const [postlike, setpostlike] = useState(post.likes.length);
-  const [comment, setcomment] = useState(post.comments);
 
-  useEffect(() => {
-    if (post) {
-      setcomment(post.comments);
-    }
-  }, [post]);
+  const liked = post.likes.includes(user?._id) || false;
+  const postlike = post.likes.length;
+  const comment = post.comments || [];
 
   const changeventhandler = (e) => {
     const inputText = e.target.value;
@@ -40,15 +36,11 @@ const Post = ({ post }) => {
     try {
       const action = liked ? "dislike" : "like";
       const res = await axios.get(
-        `https://dipanshu-instagram.onrender.com/api/v1/post/${post._id}/${action}`,
+        `${import.meta.env.VITE_API_URL}/post/${post._id}/${action}`,
         { withCredentials: true }
       );
       console.log(res);
       if (res.data.success) {
-        const updateslikes = liked ? postlike - 1 : postlike + 1;
-        setpostlike(updateslikes);
-        setliked(!liked);
-
         const updatedPostdata = posts.map((p) =>
           p._id == post._id
             ? {
@@ -71,7 +63,7 @@ const Post = ({ post }) => {
     e.preventDefault();
     try {
       const res = await axios.delete(
-        `https://dipanshu-instagram.onrender.com/api/v1/post/delete/${post._id}`,
+        `${import.meta.env.VITE_API_URL}/post/delete/${post._id}`,
         { withCredentials: true }
       );
 
@@ -90,7 +82,7 @@ const Post = ({ post }) => {
   const commenthandler = async () => {
     try {
       const res = await axios.post(
-        `https://dipanshu-instagram.onrender.com/api/v1/post/${post._id}/comment`,
+        `${import.meta.env.VITE_API_URL}/post/${post._id}/comment`,
         { text },
         {
           headers: { "Content-Type": "application/json" },
@@ -100,7 +92,6 @@ const Post = ({ post }) => {
 
       if (res.data.success) {
         const updatedcommentdata = [...comment, res.data.comment];
-        setcomment(updatedcommentdata);
         const updatedPostdata = posts.map((p) =>
           p._id === post._id ? { ...p, comments: updatedcommentdata } : p
         );
@@ -116,7 +107,7 @@ const Post = ({ post }) => {
   const bookmarkhandler = async () => {
     try {
       const res = await axios.get(
-        `https://dipanshu-instagram.onrender.com/api/v1/post/${post?._id}/bookmark`,
+        `${import.meta.env.VITE_API_URL}/post/${post?._id}/bookmark`,
         { withCredentials: true }
       );
       if (res.data.success) {
@@ -130,20 +121,42 @@ const Post = ({ post }) => {
   const followhandler = async () => {
     try {
       const res = await axios.get(
-        `https://dipanshu-instagram.onrender.com/api/v1/user/followorunfollow/${post?.author?._id}`,
+        `${import.meta.env.VITE_API_URL}/user/followorunfollow/${post?.author?._id}`,
         {
           withCredentials: true,
         }
       );
       if (res.data.success) {
         toast.success(res.data.message);
+        const isFollowing = post?.author?.followers?.includes(user?._id);
+        const updatedPosts = posts.map((p) => {
+          if (p.author?._id === post.author?._id) {
+            const followers = p.author.followers || [];
+            return {
+              ...p,
+              author: {
+                ...p.author,
+                followers: isFollowing
+                  ? followers.filter((id) => id !== user?._id)
+                  : [...followers, user?._id]
+              }
+            };
+          }
+          return p;
+        });
+        dispatch(setPosts(updatedPosts));
+
+        const updatedUser = {
+          ...user,
+          following: isFollowing
+            ? (user.following || []).filter((id) => id !== post?.author?._id)
+            : [...(user.following || []), post?.author?._id]
+        };
+        dispatch(setAuthUser(updatedUser));
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
-    setTimeout(() => {
-      window.location.reload();
-    }, 1500);
   };
   return (
     <div className="my-8 w-full max-w-sm mx-auto">

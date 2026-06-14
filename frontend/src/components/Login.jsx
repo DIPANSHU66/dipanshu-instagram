@@ -27,7 +27,7 @@ const Login = () => {
     try {
       setloading(true);
       const res = await axios.post(
-        "https://dipanshu-instagram.onrender.com/api/v1/user/login",
+        `${import.meta.env.VITE_API_URL}/user/login`,
         input,
         {
           headers: {

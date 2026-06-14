@@ -4,8 +4,11 @@ const jwt = require("jsonwebtoken");
 const { getDatauri } = require("../utils/datauri");
 const { cloudinary } = require("../utils/cloudinary");
 const Post = require("../Models/postmodel");
+const { getRecieverSocketid, io } = require("../socket/socket");
+
 
 require("dotenv").config({});
+
 
 const register = async (req, res) => {
   try {
@@ -30,6 +33,7 @@ const register = async (req, res) => {
       .json({ message: "Account Created Successfully", success: true });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ message: "Internal Server Error", success: false });
   }
 };
 
@@ -42,6 +46,7 @@ const login = async (req, res) => {
         success: false,
       });
     }
+
     let user = await User.findOne({ email });
     if (!user) {
       return res.status(401).json({
@@ -50,6 +55,7 @@ const login = async (req, res) => {
       });
     }
     const isPasswordMatch = await bcyrpt.compare(password, user.password);
+
     if (!isPasswordMatch) {
       return res.status(401).json({
         message: "Incorrect email or password",
@@ -61,7 +67,7 @@ const login = async (req, res) => {
       expiresIn: "1d",
     });
 
-    // populate each post if in the posts array
+    
     const populatedPosts = await Promise.all(
       user.posts.map(async (postId) => {
         const post = await Post.findById(postId);
@@ -84,7 +90,8 @@ const login = async (req, res) => {
     return res
       .cookie("token", token, {
         httpOnly: true,
-        sameSite: "strict",
+        sameSite: "none",
+        secure: true,
         maxAge: 1 * 24 * 60 * 60 * 1000,
       })
       .json({
@@ -94,15 +101,22 @@ const login = async (req, res) => {
       });
   } catch (error) {
     console.log(error);
+    return res.status(500).json({ message: "Internal Server Error", success: false });
   }
 };
 const logout = async (req, res) => {
   try {
     return res
-      .cookie("token", "", { maxAge: 0 })
+      .cookie("token", "", {
+        httpOnly: true,
+        sameSite: "none",
+        secure: true,
+        maxAge: 0,
+      })
       .json({ message: "Logged Out Succesfully", success: true });
   } catch (e) {
     console.log(e);
+    return res.status(500).json({ message: "Internal Server Error", success: false });
   }
 };
 
@@ -115,6 +129,7 @@ const getprofile = async (req, res) => {
     return res.status(200).json({ user, success: true });
   } catch (e) {
     console.log(e);
+    return res.status(500).json({ message: "Internal Server Error", success: false });
   }
 };
 
@@ -146,6 +161,7 @@ const editprofile = async (req, res) => {
       .json({ message: "Profile Updataed", success: true, user });
   } catch (e) {
     console.log(e);
+    return res.status(500).json({ message: "Internal Server Error", success: false });
   }
 };
 const getSuggestedUsers = async (req, res) => {
@@ -160,12 +176,15 @@ const getSuggestedUsers = async (req, res) => {
     return res.status(200).json({ success: true, users: suggestedusers });
   } catch (e) {
     console.log(e);
+    return res.status(500).json({ message: "Internal Server Error", success: false });
   }
 };
 const followorunfollow = async (req, res) => {
   try {
     const followkreneWala = req.id;
+
     const jiskofollowkrunga = req.params.id;
+    
    
     if (followkreneWala === jiskofollowkrunga)
       return res
@@ -189,6 +208,13 @@ const followorunfollow = async (req, res) => {
           { $pull: { followers: followkreneWala } }
         ),
       ]);
+      const targetSocketId = getRecieverSocketid(jiskofollowkrunga);
+      if (targetSocketId) {
+        io.to(targetSocketId).emit("followStatusUpdated", {
+          followerId: followkreneWala,
+          isFollowing: false,
+        });
+      }
       return res
         .status(200)
         .json({ message: "Unfollowed SuccessFully", success: true });
@@ -203,12 +229,25 @@ const followorunfollow = async (req, res) => {
           { $push: { followers: followkreneWala } }
         ),
       ]);
+      const targetSocketId = getRecieverSocketid(jiskofollowkrunga);
+      if (targetSocketId) {
+        io.to(targetSocketId).emit("followStatusUpdated", {
+          followerId: followkreneWala,
+          isFollowing: true,
+          followerDetails: {
+            _id: user._id,
+            username: user.username,
+            profilePicture: user.profilePicture,
+          },
+        });
+      }
       return res
         .status(200)
         .json({ message: "followed SuccessFully", success: true });
     }
   } catch (e) {
     console.log(e);
+    return res.status(500).json({ message: "Internal Server Error", success: false });
   }
 };
 

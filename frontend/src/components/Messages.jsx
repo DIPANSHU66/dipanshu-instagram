@@ -25,7 +25,7 @@ const Messages = ({ selecteduser }) => {
 
     try {
       const res = await axios.post(
-        `https://dipanshu-instagram.onrender.com/api/v1/message/delete`,
+        `${import.meta.env.VITE_API_URL}/message/delete`,
         { receiverId: msg.receiverId, senderId: msg.senderId, _id: msg._id },
         {
           headers: { "Content-Type": "application/json" },
@@ -49,7 +49,7 @@ const Messages = ({ selecteduser }) => {
   const userUsername = selecteduser?.username || "Unknown User";
   const userId = selecteduser?._id || "";
   useEffect(() => {
-    scroll.current?.scrollIntoView({ behaviour: "smooth" });
+    scroll.current?.scrollIntoView({ behavior: "smooth" });
   }, [messages]);
 
   return (

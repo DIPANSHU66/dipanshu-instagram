@@ -10,7 +10,7 @@ const UseGetAllPost = () => {
     
     const fetchAllPost = async () => {
       try {
-        const res = await axios.get("https://dipanshu-instagram.onrender.com/api/v1/post/all", {
+        const res = await axios.get(`${import.meta.env.VITE_API_URL}/post/all`, {
           withCredentials: true,
         });
         if (res.data.success) {

@@ -2,15 +2,17 @@ import React, { useEffect, useState } from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
 import useGetUserProfile from "@/hooks/useGetUserProfile";
 import { Link, useNavigate, useParams } from "react-router-dom";
-import { useSelector } from "react-redux";
+import { useSelector, useDispatch } from "react-redux";
 import { Button } from "./ui/button";
 import { Badge } from "./ui/badge";
 import { AtSign, Heart, MessageCircle } from "lucide-react";
+import { setAuthUser, setuserProfile } from "@/redux/authSlice";
 
 import axios from "axios";
 import { toast } from "sonner";
 
 const Profile = () => {
+  const dispatch = useDispatch();
   const params = useParams();
   const userId = params.id;
   useGetUserProfile(userId);
@@ -26,20 +28,36 @@ const Profile = () => {
   const followhandler = async () => {
     try {
       const res = await axios.get(
-        `https://dipanshu-instagram.onrender.com/api/v1/user/followorunfollow/${userProfile._id}`,
+        `${import.meta.env.VITE_API_URL}/user/followorunfollow/${userProfile._id}`,
         {
           withCredentials: true,
         }
       );
       if (res.data.success) {
         toast.success(res.data.message);
+        const isFollowing = userProfile?.followers?.includes(user?._id);
+        
+        // Update userProfile followers
+        const updatedProfile = {
+          ...userProfile,
+          followers: isFollowing
+            ? (userProfile.followers || []).filter((id) => id !== user?._id)
+            : [...(userProfile.followers || []), user?._id]
+        };
+        dispatch(setuserProfile(updatedProfile));
+
+        // Update logged in user following
+        const updatedUser = {
+          ...user,
+          following: isFollowing
+            ? (user.following || []).filter((id) => id !== userProfile?._id)
+            : [...(user.following || []), userProfile?._id]
+        };
+        dispatch(setAuthUser(updatedUser));
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
-    setTimeout(() => {
-      window.location.reload();
-    }, 1500);
   };
   return (
     <div className="flex  my-16">

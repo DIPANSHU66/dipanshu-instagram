@@ -13,7 +13,11 @@ import { useDispatch, useSelector } from "react-redux";
 import { setsocket } from "./redux/socketSlice";
 import { setonlineuser } from "./redux/chatslice";
 import { setlikenotification } from "./redux/rtmSlice";
+import { likePostRealtime, dislikePostRealtime, addCommentRealtime } from "./redux/postSlice";
+import { updateFollowersRealtime } from "./redux/authSlice";
 import ProtectedRoutes from "./components/ProtectedRoutes";
+import { WebRTCOverlay } from "./context/WebRTCContext";
+
 const browserRouter = createBrowserRouter([
   {
     path: "/",
@@ -74,7 +78,8 @@ function App() {
   const { user } = useSelector((store) => store.auth);
   useEffect(() => {
     if (user) {
-      const socketio = io("https://dipanshu-instagram.onrender.com", {
+      const socketUrl = import.meta.env.VITE_API_URL.replace("/api/v1", "");
+      const socketio = io(socketUrl, {
         query: {
           userId: user?._id,
         },
@@ -89,6 +94,18 @@ function App() {
       socketio.on("notification", (notification) => {
         dispatch(setlikenotification(notification));
       });
+      socketio.on("postLiked", ({ postId, userId }) => {
+        dispatch(likePostRealtime({ postId, userId }));
+      });
+      socketio.on("postDisliked", ({ postId, userId }) => {
+        dispatch(dislikePostRealtime({ postId, userId }));
+      });
+      socketio.on("postCommentAdded", ({ postId, comment }) => {
+        dispatch(addCommentRealtime({ postId, comment }));
+      });
+      socketio.on("followStatusUpdated", ({ followerId, isFollowing, followerDetails }) => {
+        dispatch(updateFollowersRealtime({ followerId, isFollowing, followerDetails }));
+      });
 
       return () => {
         socketio.close();
@@ -100,9 +117,9 @@ function App() {
     }
   }, [user, dispatch]);
   return (
-    <div>
+    <WebRTCOverlay>
       <RouterProvider router={browserRouter} />
-    </div>
+    </WebRTCOverlay>
   );
 }
 

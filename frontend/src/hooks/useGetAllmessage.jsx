@@ -3,7 +3,7 @@ import { useEffect } from "react";
 import axios from "axios";
 import { setMessages } from "@/redux/chatslice";
 
-const API_URL = "https://dipanshu-instagram.onrender.com/api/v1/message";
+
 
 const useGetAllmessage = () => {
   const dispatch = useDispatch();
@@ -15,7 +15,7 @@ const useGetAllmessage = () => {
     const fetchAllMessages = async () => {
       try {
         const res = await axios.get(
-          `${API_URL}/all/${selecteduser._id}`,
+          `${import.meta.env.VITE_API_URL}/message/all/${selecteduser._id}`,
           {
             withCredentials: true,
           }

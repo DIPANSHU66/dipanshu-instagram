@@ -8,7 +8,7 @@ const useGetSuggesteduser = () => {
     const fetchsuggestedUsers = async () => {
       try {
         const res = await axios.get(
-          "https://dipanshu-instagram.onrender.com/api/v1/user/suggested",
+          `${import.meta.env.VITE_API_URL}/user/suggested`,
           {
             withCredentials: true,
           }

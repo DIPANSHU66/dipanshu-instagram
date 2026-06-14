@@ -117,6 +117,8 @@ const likepost = async (req, res) => {
       const postsocketownerid = getRecieverSocketid(postownerId);
       io.to(postsocketownerid).emit("notification", notification);
     }
+    // Broadcast like to everyone
+    io.emit("postLiked", { postId, userId: likekrnewalauser });
     return res.status(200).json({ message: "Post Liked", success: true });
   } catch (e) {
     console.log(e);
@@ -148,6 +150,8 @@ const dislikedpost = async (req, res) => {
       const postsocketownerid = getRecieverSocketid(postownerId);
       io.to(postsocketownerid).emit("notification", notification);
     }
+    // Broadcast dislike to everyone
+    io.emit("postDisliked", { postId, userId: likekrnewalauser });
     return res.status(200).json({ message: "Post Disliked", success: true });
   } catch (e) {
     console.log(e);
@@ -176,6 +180,8 @@ const adcomment = async (req, res) => {
     });
     post.comments.push(comment._id);
     await post.save();
+    // Broadcast new comment to everyone
+    io.emit("postCommentAdded", { postId: postid, comment });
     return res.status(201).json({
       comment,
       message: "Comment Added",
@@ -188,15 +194,16 @@ const adcomment = async (req, res) => {
 const getcommentofPost = async (req, res) => {
   try {
     const postid = req.params.id;
-    const comments = await Comment.findById({ post: postid }).populate({
+    const comments = await Comment.find({ post: postid }).populate({
       path: "author",
       select: "username profilePicture",
     });
 
-    if (!comments)
-      req
+    if (!comments || comments.length === 0) {
+      return res
         .status(404)
-        .json({ message: "No Comments For this Post", sucess: "false" });
+        .json({ message: "No Comments For this Post", success: false });
+    }
 
     return res.status(200).json({ success: true, comments });
   } catch (e) {
