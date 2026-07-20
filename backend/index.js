@@ -11,12 +11,26 @@ app.use(express.json());
 app.use(express.urlencoded({ extended: true }));
 app.use(cookieParser());
 
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  ...(process.env.URL ? process.env.URL.split(",") : [])
+];
+
 const corsOptions = {
-  origin: process.env.URL ? process.env.URL.split(",") : "http://localhost:5173",
+  origin: function (origin, callback) {
+    if (!origin) return callback(null, true);
+    if (allowedOrigins.indexOf(origin) !== -1) {
+      return callback(null, true);
+    } else {
+      return callback(null, false); // Block other origins safely
+    }
+  },
   credentials: true,
 };
 
 app.use(cors(corsOptions));
+
 
 const connectdb = require("./utils/db");
 connectdb();

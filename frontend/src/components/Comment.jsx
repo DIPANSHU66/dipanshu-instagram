@@ -1,5 +1,6 @@
 import React from "react";
 import { Avatar, AvatarFallback, AvatarImage } from "./ui/avatar";
+import RichText from "./RichText";
 
 const Comment = ({ comment }) => {
   
@@ -12,7 +13,9 @@ const Comment = ({ comment }) => {
         </Avatar>
         <h1 className="font-bold text-sm ">
           {comment?.author?.username}
-          <span className="font-normal pl-1"> {comment?.text}</span>
+          <span className="font-normal pl-1">
+            <RichText text={comment?.text} />
+          </span>
         </h1>
       </div>
     </div>
@@ -20,3 +23,4 @@ const Comment = ({ comment }) => {
 };
 
 export default Comment;
+

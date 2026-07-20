@@ -7,13 +7,18 @@ import Profile from "./components/Profile";
 import EditProfile from "./components/EditProfile";
 import { createBrowserRouter, RouterProvider } from "react-router-dom";
 import ChatPage from "./components/ChatPage";
+import Explore from "./components/Explore";
 import { io } from "socket.io-client";
 import { useEffect } from "react";
 import { useDispatch, useSelector } from "react-redux";
 import { setsocket } from "./redux/socketSlice";
 import { setonlineuser } from "./redux/chatslice";
 import { setlikenotification } from "./redux/rtmSlice";
-import { likePostRealtime, dislikePostRealtime, addCommentRealtime } from "./redux/postSlice";
+import {
+  likePostRealtime,
+  dislikePostRealtime,
+  addCommentRealtime,
+} from "./redux/postSlice";
 import { updateFollowersRealtime } from "./redux/authSlice";
 import ProtectedRoutes from "./components/ProtectedRoutes";
 import { WebRTCOverlay } from "./context/WebRTCContext";
@@ -60,6 +65,14 @@ const browserRouter = createBrowserRouter([
           </ProtectedRoutes>
         ),
       },
+      {
+        path: "/explore",
+        element: (
+          <ProtectedRoutes>
+            <Explore />
+          </ProtectedRoutes>
+        ),
+      },
     ],
   },
   {
@@ -73,6 +86,10 @@ const browserRouter = createBrowserRouter([
 ]);
 
 function App() {
+
+
+
+  
   const dispatch = useDispatch();
   const { socket } = useSelector((store) => store.socketio);
   const { user } = useSelector((store) => store.auth);
@@ -83,7 +100,7 @@ function App() {
         query: {
           userId: user?._id,
         },
-        transports: ["websocket"],
+        // BEFORE STATE: Default Socket.io behavior (HTTP polling → WebSocket upgrade)
       });
 
       dispatch(setsocket(socketio));
@@ -103,9 +120,18 @@ function App() {
       socketio.on("postCommentAdded", ({ postId, comment }) => {
         dispatch(addCommentRealtime({ postId, comment }));
       });
-      socketio.on("followStatusUpdated", ({ followerId, isFollowing, followerDetails }) => {
-        dispatch(updateFollowersRealtime({ followerId, isFollowing, followerDetails }));
-      });
+      socketio.on(
+        "followStatusUpdated",
+        ({ followerId, isFollowing, followerDetails }) => {
+          dispatch(
+            updateFollowersRealtime({
+              followerId,
+              isFollowing,
+              followerDetails,
+            }),
+          );
+        },
+      );
 
       return () => {
         socketio.close();

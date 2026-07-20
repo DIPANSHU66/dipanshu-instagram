@@ -95,6 +95,7 @@ const likepost = async (req, res) => {
     const likekrnewalauser = req.id;
     const postId = req.params.id;
     const post = await Post.findById(postId);
+    
     if (!post)
       return res
         .status(400)

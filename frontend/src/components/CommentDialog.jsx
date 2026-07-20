@@ -55,7 +55,6 @@ const CommentDialog = ({ open, setopen }) => {
       console.log(error);
     }
   };
-  console.log(selectedPost);
 
   const followhandler = async () => {
     try {

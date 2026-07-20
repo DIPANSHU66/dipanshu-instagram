@@ -19,6 +19,11 @@ const Profile = () => {
   const { userProfile, user } = useSelector((store) => store.auth);
   const isloggedInuserProfile = user?._id == userProfile?._id;
   const [activetab, setActiveTab] = useState("posts");
+  
+  useEffect(() => {
+    setActiveTab("posts");
+  }, [userId]);
+
   const handletabchange = (tab) => {
     setActiveTab(tab);
   };
@@ -159,14 +164,16 @@ const Profile = () => {
             >
               POSTS
             </span>
-            <span
-              className={`py-3 cursor-pointer ${
-                activetab === "saved" ? "text-blue-700" : ""
-              }`}
-              onClick={() => handletabchange("saved")}
-            >
-              SAVED
-            </span>
+            {isloggedInuserProfile && (
+              <span
+                className={`py-3 cursor-pointer ${
+                  activetab === "saved" ? "text-blue-700" : ""
+                }`}
+                onClick={() => handletabchange("saved")}
+              >
+                SAVED
+              </span>
+            )}
             <span className="py-3 cursor-pointer">REELS</span>
             <span className="py-3 cursor-pointer">TAGS</span>
           </div>

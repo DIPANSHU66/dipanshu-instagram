@@ -9,6 +9,7 @@ const {
   editprofile,
   getSuggestedUsers,
   followorunfollow,
+  searchUser,
 } = require("../controllers/usercontroller");
 
 const { upload } = require("../middlewares/multer");
@@ -16,6 +17,7 @@ const { upload } = require("../middlewares/multer");
 router.post("/register", register);
 router.post("/login", login);
 router.get("/logout", logout);
+router.get("/search", isAuthentictaed, searchUser);
 router.get("/:id/profile", isAuthentictaed, getprofile);
 router.post(
   "/profile/edit",

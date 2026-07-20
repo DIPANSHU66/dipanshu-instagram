@@ -4,12 +4,19 @@ const http = require("http");
 const app = express();
 const server = http.createServer(app);
 require("dotenv").config({});
+const allowedOrigins = [
+  "http://localhost:5173",
+  "http://localhost:5174",
+  ...(process.env.URL ? process.env.URL.split(",") : []),
+];
+
 const io = new Server(server, {
   cors: {
-    origin: process.env.URL ? process.env.URL.split(",") : "http://localhost:5173",
+    origin: allowedOrigins,
     methods: ["GET", "POST", "PUT"],
   },
 });
+
 const userSocketMap = {};
 const getRecieverSocketid = (receiverId) => {
   if (userSocketMap[receiverId] && userSocketMap[receiverId].length > 0) {
@@ -17,6 +24,7 @@ const getRecieverSocketid = (receiverId) => {
   }
   return undefined;
 };
+
 io.on("connection", (socket) => {
   const userId = socket.handshake.query.userId;
   if (userId) {
@@ -32,7 +40,9 @@ io.on("connection", (socket) => {
 
   socket.on("disconnect", () => {
     if (userId && userSocketMap[userId]) {
-      userSocketMap[userId] = userSocketMap[userId].filter((id) => id !== socket.id);
+      userSocketMap[userId] = userSocketMap[userId].filter(
+        (id) => id !== socket.id,
+      );
       if (userSocketMap[userId].length === 0) {
         delete userSocketMap[userId];
       }
@@ -41,17 +51,20 @@ io.on("connection", (socket) => {
   });
 
   // WebRTC Audio/Video Call Events
-  socket.on("call-user", ({ userToCall, signalData, from, callerName, type }) => {
-    const receiverSocketId = getRecieverSocketid(userToCall);
-    if (receiverSocketId) {
-      io.to(receiverSocketId).emit("incoming-call", {
-        signal: signalData,
-        from,
-        callerName,
-        type, // 'video' or 'audio'
-      });
-    }
-  });
+  socket.on(
+    "call-user",
+    ({ userToCall, signalData, from, callerName, type }) => {
+      const receiverSocketId = getRecieverSocketid(userToCall);
+      if (receiverSocketId) {
+        io.to(receiverSocketId).emit("incoming-call", {
+          signal: signalData,
+          from,
+          callerName,
+          type, // 'video' or 'audio'
+        });
+      }
+    },
+  );
 
   socket.on("answer-call", ({ to, signal }) => {
     const callerSocketId = getRecieverSocketid(to);

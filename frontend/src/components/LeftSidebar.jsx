@@ -18,8 +18,10 @@ import CreatePost from "./CreatePost";
 import { setPosts, setselectedPost } from "@/redux/postSlice";
 import { Popover, PopoverContent, PopoverTrigger } from "./ui/popover";
 import { Button } from "./ui/button";
+import SearchDialog from "./SearchDialog";
 const LeftSidebar = () => {
   const [open, setopen] = useState(false);
+  const [searchOpen, setSearchOpen] = useState(false);
   const navigate = useNavigate();
   const { user } = useSelector((store) => store.auth);
   const dispatch = useDispatch();
@@ -46,10 +48,11 @@ const LeftSidebar = () => {
   const sidehandler = (texttype) => {
     if (texttype == "Logout") logouthandler();
     else if (texttype == "Create") setopen(true);
+    else if (texttype == "Search") setSearchOpen(true);
+    else if (texttype == "Explore") navigate("/explore");
     else if (texttype == "Profile") navigate(`/profile/${user?._id}`);
     else if (texttype == "Home") navigate("/");
     else if (texttype == "Messages") navigate("/chat");
-  
   };
   const sidebaritems = [
     {
@@ -156,6 +159,7 @@ const LeftSidebar = () => {
         </div>
       </div>
       <CreatePost open={open} setopen={setopen}></CreatePost>
+      <SearchDialog open={searchOpen} setOpen={setSearchOpen}></SearchDialog>
     </div>
   );
 };

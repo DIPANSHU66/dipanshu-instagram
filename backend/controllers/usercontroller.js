@@ -86,6 +86,7 @@ const login = async (req, res) => {
       followers: user.followers,
       following: user.following,
       posts: populatedPosts,
+      bookmarks: user.bookmarks,
     };
     return res
       .cookie("token", token, {
@@ -251,6 +252,27 @@ const followorunfollow = async (req, res) => {
   }
 };
 
+const searchUser = async (req, res) => {
+  try {
+    const { query } = req.query;
+    if (!query) {
+      return res.status(200).json({ success: true, users: [] });
+    }
+    const users = await User.find({
+      $or: [
+        { username: { $regex: query, $options: "i" } },
+        { email: { $regex: query, $options: "i" } },
+      ],
+      _id: { $ne: req.id }, // Exclude current user
+    }).select("-password");
+
+    return res.status(200).json({ success: true, users });
+  } catch (error) {
+    console.log(error);
+    return res.status(500).json({ message: "Internal Server Error", success: false });
+  }
+};
+
 module.exports = {
   register,
   login,
@@ -259,4 +281,5 @@ module.exports = {
   editprofile,
   getSuggestedUsers,
   followorunfollow,
+  searchUser,
 };

@@ -8,12 +8,13 @@ import CommentDialog from "./CommentDialog";
 import { useDispatch, useSelector } from "react-redux";
 import axios from "axios";
 import { toast } from "sonner";
+import { setAuthUser, setuserProfile } from "@/redux/authSlice";
 import { setPosts, setselectedPost } from "@/redux/postSlice";
-import { setAuthUser } from "@/redux/authSlice";
 import { Badge } from "./ui/badge";
+import RichText from "./RichText";
 
 const Post = ({ post }) => {
-  const { user, SuggestedUsers } = useSelector((store) => store.auth);
+  const { user, SuggestedUsers, userProfile } = useSelector((store) => store.auth);
   const { posts } = useSelector((store) => store.post);
   const dispatch = useDispatch();
   const [text, setText] = useState("");
@@ -112,9 +113,33 @@ const Post = ({ post }) => {
       );
       if (res.data.success) {
         toast.success(res.data.message);
+        
+        // Update user bookmarks list (IDs) in Redux
+        const isBookmarked = user?.bookmarks?.includes(post?._id);
+        const updatedBookmarks = isBookmarked
+          ? user.bookmarks.filter((id) => id !== post?._id)
+          : [...(user.bookmarks || []), post?._id];
+
+        dispatch(setAuthUser({
+          ...user,
+          bookmarks: updatedBookmarks,
+        }));
+
+        // If currently viewing own profile, update populated userProfile.bookmarks list
+        if (userProfile && userProfile._id === user?._id) {
+          const isProfileBookmarked = userProfile.bookmarks?.some((b) => b?._id === post?._id);
+          const updatedProfileBookmarks = isProfileBookmarked
+            ? userProfile.bookmarks.filter((b) => b?._id !== post?._id)
+            : [...(userProfile.bookmarks || []), post];
+
+          dispatch(setuserProfile({
+            ...userProfile,
+            bookmarks: updatedProfileBookmarks,
+          }));
+        }
       }
     } catch (error) {
-      toast.error(error.response.data.message);
+      toast.error(error.response?.data?.message || "Something went wrong");
     }
   };
 
@@ -237,13 +262,15 @@ const Post = ({ post }) => {
         </div>
         <Bookmark
           onClick={bookmarkhandler}
-          className="cursor-pointer   hover:text-red-900"
+          className={`cursor-pointer hover:text-red-900 transition-colors ${
+            user?.bookmarks?.includes(post?._id) ? "fill-black text-black" : "text-zinc-600"
+          }`}
         ></Bookmark>
       </div>
       <span className="font-medium  block mb-2">{postlike} Likes</span>
       <p>
         <span className="font-medium mr-2">{post?.author?.username}</span>
-        {post.caption}
+        <RichText text={post.caption} />
       </p>
       {comment.length >= 0 && (
         <span
